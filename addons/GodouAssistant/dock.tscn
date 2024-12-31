@@ -1,0 +1,227 @@
+[gd_scene load_steps=7 format=3 uid="uid://dddny44oo2rmg"]
+
+[ext_resource type="Script" path="res://addons/GodouAssistant/dock.gd" id="1_s40ua"]
+[ext_resource type="Script" path="res://addons/GodouAssistant/api.gd" id="2_ggvy5"]
+[ext_resource type="Script" path="res://addons/GodouAssistant/tabs.gd" id="4_sryol"]
+[ext_resource type="Script" path="res://addons/GodouAssistant/Settings.gd" id="5_cfhoe"]
+[ext_resource type="Script" path="res://addons/GodouAssistant/messages.gd" id="5_h3u7r"]
+
+[sub_resource type="GDScript" id="GDScript_uv0dv"]
+script/source = "@tool
+extends TabBar
+
+
+func send_message():
+	$UIList/Footer/SendButton.disabled = true
+	$Doubao.dialogue_request($UIList/Footer/LineEdit.text, get_parent().settings)
+	$UIList/ScrollContainer/MessageList.add_message($UIList/Footer/LineEdit.text, \"user\")
+	$UIList/Footer/LineEdit.text = \"\"
+
+
+func receive_message(response: String):
+	$UIList/ScrollContainer/MessageList.add_message(response, \"assistant\")
+	$UIList/Footer/SendButton.disabled = true
+
+
+func _on_open():
+	pass
+
+
+func _on_close():
+	pass
+
+
+func _on_send_pressed():
+	send_message()
+
+
+func _on_input_text_submitted(new_text):
+	send_message()
+
+
+func _on_input_text_changed(new_text):
+	$UIList/Footer/SendButton.disabled = $UIList/Footer/LineEdit.text.is_empty()
+
+
+func _on_request_completed(response: String):
+	receive_message(response)
+
+
+func _on_clear_button_pressed() -> void:
+	$Doubao.clear_chat_history()
+	$UIList/ScrollContainer/MessageList.clear_all()
+"
+
+[node name="GodouAssistant" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_s40ua")
+
+[node name="Tabs" type="TabContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+tab_alignment = 1
+current_tab = 0
+script = ExtResource("4_sryol")
+
+[node name="Chat" type="TabBar" parent="Tabs"]
+layout_mode = 2
+script = SubResource("GDScript_uv0dv")
+metadata/_tab_index = 0
+
+[node name="Doubao" type="Node" parent="Tabs/Chat"]
+script = ExtResource("2_ggvy5")
+
+[node name="UIList" type="VBoxContainer" parent="Tabs/Chat"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Tabs/Chat/UIList"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MessageList" type="VBoxContainer" parent="Tabs/Chat/UIList/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+script = ExtResource("5_h3u7r")
+
+[node name="Footer" type="VBoxContainer" parent="Tabs/Chat/UIList"]
+layout_mode = 2
+alignment = 2
+
+[node name="LineEdit" type="LineEdit" parent="Tabs/Chat/UIList/Footer"]
+layout_mode = 2
+placeholder_text = "Please Enter Message"
+
+[node name="SendButton" type="Button" parent="Tabs/Chat/UIList/Footer"]
+layout_mode = 2
+disabled = true
+text = "Send"
+
+[node name="ClearButton" type="Button" parent="Tabs/Chat/UIList/Footer"]
+layout_mode = 2
+text = "Clear"
+
+[node name="Settings" type="TabBar" parent="Tabs"]
+visible = false
+layout_mode = 2
+script = ExtResource("5_cfhoe")
+metadata/_tab_index = 1
+
+[node name="SettingsList" type="VBoxContainer" parent="Tabs/Settings"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+
+[node name="APIKey" type="HBoxContainer" parent="Tabs/Settings/SettingsList"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="Tabs/Settings/SettingsList/APIKey"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Your API Key"
+
+[node name="LineEdit" type="LineEdit" parent="Tabs/Settings/SettingsList/APIKey"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "f18043f1-0f5e-4c41-a6a0-1b8275031d82"
+
+[node name="Model" type="HBoxContainer" parent="Tabs/Settings/SettingsList"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="Tabs/Settings/SettingsList/Model"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Model ID"
+
+[node name="LineEdit" type="LineEdit" parent="Tabs/Settings/SettingsList/Model"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "f18043f1-0f5e-4c41-a6a0-1b8275031d82"
+
+[node name="About" type="TabBar" parent="Tabs"]
+visible = false
+layout_mode = 2
+script = SubResource("GDScript_uv0dv")
+metadata/_tab_index = 2
+
+[node name="UIList" type="VBoxContainer" parent="Tabs/About"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Header" type="VBoxContainer" parent="Tabs/About/UIList"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label2" type="Label" parent="Tabs/About/UIList/Header"]
+modulate = Color(0.643137, 0.643137, 0.643137, 1)
+custom_minimum_size = Vector2(1, 1)
+layout_mode = 2
+size_flags_vertical = 1
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Label" type="Label" parent="Tabs/About/UIList/Header"]
+modulate = Color(0.643137, 0.643137, 0.643137, 1)
+custom_minimum_size = Vector2(1, 1)
+layout_mode = 2
+size_flags_vertical = 1
+text = "由豆包AI模型驱动的Godot代码助手！"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Label3" type="Label" parent="Tabs/About/UIList/Header"]
+modulate = Color(0.643137, 0.643137, 0.643137, 1)
+custom_minimum_size = Vector2(1, 1)
+layout_mode = 2
+size_flags_vertical = 1
+text = "东南竹箭团队"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Links" type="HBoxContainer" parent="Tabs/About/UIList"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="GitHub" type="LinkButton" parent="Tabs/About/UIList/Links"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "GitHub"
+uri = "https://github.com/jespereggers"
+text_direction = 1
+
+[connection signal="tab_changed" from="Tabs" to="Tabs" method="_on_tab_changed"]
+[connection signal="text_changed" from="Tabs/Chat/UIList/Footer/LineEdit" to="Tabs/Chat" method="_on_input_text_changed"]
+[connection signal="text_submitted" from="Tabs/Chat/UIList/Footer/LineEdit" to="Tabs/Chat" method="_on_input_text_submitted"]
+[connection signal="pressed" from="Tabs/Chat/UIList/Footer/SendButton" to="Tabs/Chat" method="_on_send_pressed"]
+[connection signal="pressed" from="Tabs/Chat/UIList/Footer/ClearButton" to="Tabs/Chat" method="_on_clear_button_pressed"]
