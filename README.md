@@ -1,1 +1,1 @@
-GodouAssistant Godot豆包
+GodouAssistant 戈豆助手，基于豆包大模型的Godot AI代码编程助手
